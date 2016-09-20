@@ -1,0 +1,3 @@
+telemetry:
+
+Drone telemetry library and tools based on shared memory (libshdata)

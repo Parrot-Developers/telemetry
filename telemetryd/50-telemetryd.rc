@@ -1,0 +1,5 @@
+service telemetryd /usr/bin/telemetryd
+    class main
+    user root
+    disabled
+
