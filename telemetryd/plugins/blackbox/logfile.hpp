@@ -45,7 +45,6 @@ private:
 	int writeDataCompressed(const void *buf, size_t len, bool flush);
 	int flush();
 	int seek(long off, int whence);
-	int getPos(long *pos);
 
 public:
 	LogFile(const std::string &path, bool compressed);
@@ -63,6 +62,7 @@ public:
 	int beginBlock();
 	int finishBlock();
 	int finishFile();
+	int getPos(long *pos);
 };
 
 #endif /* !_LOGFILE_HPP_ */

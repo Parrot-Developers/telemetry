@@ -41,6 +41,7 @@ ULOG_DECLARE_TAG(tlmblackbox);
 #define BBX_SETTING_NAME_LOGCOUNT      BBX_SETTING_ROOT ".logcount"
 #define BBX_SETTING_NAME_FILTER        BBX_SETTING_ROOT ".filter"
 #define BBX_SETTING_NAME_FLUSHPERIOD   BBX_SETTING_ROOT ".flushperiod"
+#define BBX_SETTING_NAME_MAXSIZE       BBX_SETTING_ROOT ".maxsize"
 
 #ifdef BUILD_LIBSHS
 #  define BBX_SETTING_DEF_ENABLED      true
@@ -50,6 +51,7 @@ ULOG_DECLARE_TAG(tlmblackbox);
 #  define BBX_SETTING_DEF_LOGCOUNT     4
 #  define BBX_SETTING_DEF_FILTER       "*"
 #  define BBX_SETTING_DEF_FLUSHPERIOD  10000
+#  define BBX_SETTING_DEF_MAXSIZE      -1
 #else /* !BUILD_LIBSHS */
 #  define BBX_SETTING_DEF_ENABLED      true
 #  define BBX_SETTING_DEF_COMPRESSED   true
@@ -58,6 +60,7 @@ ULOG_DECLARE_TAG(tlmblackbox);
 #  define BBX_SETTING_DEF_LOGCOUNT     4
 #  define BBX_SETTING_DEF_FILTER       "*"
 #  define BBX_SETTING_DEF_FLUSHPERIOD  10000
+#  define BBX_SETTING_DEF_MAXSIZE      -1
 #endif /* !BUILD_LIBSHS */
 
 /** */
@@ -197,6 +200,7 @@ private:
 		std::string  mFilter;      /**< Filter */
 		bool         mLoaded;      /**< Initial settings loaded */
 		int          mFlushPeriod; /**< Period of data flushing to disk */
+		int          mMaxSize;     /**< Maximum size in bytes of a log file (-1 = no limit)*/
 	} mSettings;
 
 private:
@@ -212,6 +216,7 @@ private:
 	void setLogCount(int val);
 	void setFilter(const char *val);
 	void setFlushPeriod(int val);
+	void setMaxSize(int val);
 
 	static void timerCb(struct pomp_timer *timer, void *userdata);
 
@@ -303,6 +308,9 @@ BbxLoggerCb::BbxLoggerCb(telemetry::Logger *logger, struct pomp_loop *loop,
 	mShsHelper->reg(BBX_SETTING_NAME_FLUSHPERIOD,
 			BBX_SETTING_DEF_FLUSHPERIOD, flags,
 			&BbxLoggerCb::setFlushPeriod);
+	mShsHelper->reg(BBX_SETTING_NAME_MAXSIZE,
+			BBX_SETTING_DEF_MAXSIZE, flags,
+			&BbxLoggerCb::setMaxSize);
 
 	/* Start context and add in loop */
 	shs_ctx_start(mShsCtx);
@@ -317,6 +325,7 @@ BbxLoggerCb::BbxLoggerCb(telemetry::Logger *logger, struct pomp_loop *loop,
 	setLogCount(convertInto(getenv("BBX_SETTING_DEF_LOGCOUNT"),	BBX_SETTING_DEF_LOGCOUNT) );
 	setFilter(convertInto(getenv("BBX_SETTING_DEF_FILTER"),	BBX_SETTING_DEF_FILTER) );
 	setFlushPeriod(convertInto(getenv("BBX_SETTING_DEF_FLUSHPERIOD"), BBX_SETTING_DEF_FLUSHPERIOD) );
+	setMaxSize(convertInto(getenv("BBX_SETTING_DEF_MAXSIZE"), BBX_SETTING_DEF_MAXSIZE) );
 #endif /* !BUILD_LIBSHS */
 
 	/* Settings are now fully loaded */
@@ -644,13 +653,29 @@ void BbxLoggerCb::setFlushPeriod(int val)
 
 /**
  */
+void BbxLoggerCb::setMaxSize(int val)
+{
+	ULOGI("setMaxSize %d bytes", val);
+	mSettings.mMaxSize = val;
+}
+
+/**
+ */
 void BbxLoggerCb::timerCb(struct pomp_timer *timer, void *userdata)
 {
 	BbxLoggerCb *self = reinterpret_cast<BbxLoggerCb *>(userdata);
+	long position;
 
 	ULOGD("flushing blackbox");
 	/* Flush block and start a new one */
 	self->mLogFile->finishBlock();
+
+	/* if max size is reached, then perform a "reset" to rotate the logs */
+	if ((self->mSettings.mMaxSize != -1) &&
+			(self->mLogFile->getPos(&position) >= 0) &&
+			(position > self->mSettings.mMaxSize)) {
+		self->reset();
+        }
 	self->mLogFile->beginBlock();
 }
 
