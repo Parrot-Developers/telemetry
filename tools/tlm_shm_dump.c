@@ -53,7 +53,7 @@
 #endif /* !STATIC_ASSERT */
 
 /** Alignment of variables in internal memory */
-#define ALIGNMENT  8
+#define ALIGNMENT  4
 
 /** Align a size or offset up to ALIGNMENT */
 #define ALIGN_UP(x) (((x) + ALIGNMENT - 1) & ~(ALIGNMENT - 1))
