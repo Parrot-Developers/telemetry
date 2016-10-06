@@ -621,6 +621,10 @@ static void dump_latest_sample(struct tlm_shm_ctx *ctx)
 	len = ALIGN_UP(sizeof(struct tlm_shm_sample_hdr) +
 			ctx->section_hdr->blob_size);
 	alignment =  floor(log10(ctx->section_hdr->max_nb_samples)) + 1;
+	if (ctx->section_hdr->write_index < 0) {
+		fprintf(stdout, "No sample written yet\n");
+		return;
+	}
 	idx = ctx->section_hdr->write_index;
 	buf = (const uint8_t *)ctx->samples + idx * len;
 	hdr = buf;
