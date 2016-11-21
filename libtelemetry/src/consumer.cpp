@@ -258,7 +258,7 @@ bool Consumer::getNextSample(const struct timespec *timestamp, uint32_t timeout)
 	struct timespec startwait;
 	struct timespec waittime;
 	uint64_t waited = 0;
-	clock_gettime(CLOCK_MONOTONIC, &startwait);
+	time_get_monotonic(&startwait);
 
 	/* Get producer rate in us */
 	ShdCtx *shdCtx = mShdCtxPtrMap.begin()->second;

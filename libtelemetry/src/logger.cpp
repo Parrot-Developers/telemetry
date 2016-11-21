@@ -258,7 +258,7 @@ void Logger::checkSectionList(LoggerCb *cb)
 	/* Only check from time to time... */
 	struct timespec ts;
 	uint64_t currentTime = 0;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
+	time_get_monotonic(&ts);
 	time_timespec_to_us(&ts, &currentTime);
 	if (mLastSectionListTime != 0 && currentTime <
 			mLastSectionListTime + CHECK_SECTION_LIST_DELAY) {

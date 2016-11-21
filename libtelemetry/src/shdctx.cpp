@@ -82,7 +82,7 @@ bool ShdCtx::openShdCtx()
 	 * not yet started */
 	struct timespec ts;
 	uint64_t currentTime = 0;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
+	time_get_monotonic(&ts);
 	time_timespec_to_us(&ts, &currentTime);
 	if (mLastOpenFailureTime != 0 && currentTime < mLastOpenFailureTime + OPEN_ATTEMPT_DELAY) {
 		/* Try again later... */

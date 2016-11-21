@@ -194,7 +194,7 @@ void Producer::putSample(const struct timespec *timestamp)
 	struct shd_sample_metadata metadata;
 	memset(&metadata, 0, sizeof(metadata));
 	if (timestamp == NULL)
-		clock_gettime(CLOCK_MONOTONIC, &metadata.ts);
+		time_get_monotonic(&metadata.ts);
 	else
 		metadata.ts = *timestamp;
 
