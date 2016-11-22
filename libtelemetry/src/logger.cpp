@@ -27,6 +27,7 @@
  *
  */
 
+#include <dirent.h>
 #include "private.hpp"
 
 /** Delay (in us) between successive check of section list */

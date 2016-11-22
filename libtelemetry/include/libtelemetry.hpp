@@ -617,7 +617,9 @@ inline void Registrator::RegHelper<T[N], true>::reg(Registrator &registrator, T 
 		uint32_t flags,
 		struct timespec *timestamp) {
 	for (size_t i = 0; i < N; i++) {
-		std::string itemName = name + "." + std::to_string(i);
+		char iStr[32];
+		snprintf(iStr, sizeof(iStr), "%d", i);
+		std::string itemName = name + "." + iStr;
 		ClassDesc classDesc(section, itemName, flags,
 				timestamp, registrator);
 		var[i].telemetryRegister(classDesc);

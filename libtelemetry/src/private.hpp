@@ -32,7 +32,6 @@
 
 #include <errno.h>
 #include <unistd.h>
-#include <dirent.h>
 #include <fnmatch.h>
 
 #include <cassert>
