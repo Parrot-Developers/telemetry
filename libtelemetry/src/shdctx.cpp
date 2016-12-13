@@ -160,6 +160,7 @@ void ShdCtx::setupSearch(struct shd_sample_search *search,
 	case TLM_CLOSEST: search->method = SHD_CLOSEST; break;
 	case TLM_FIRST_AFTER: search->method = SHD_FIRST_AFTER; break;
 	case TLM_FIRST_BEFORE: search->method = SHD_FIRST_BEFORE; break;
+	case TLM_OLDEST: search->method = SHD_OLDEST; break;
 	default: assert(0); break;
 	}
 }

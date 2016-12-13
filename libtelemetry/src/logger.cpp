@@ -146,19 +146,36 @@ void Logger::SectionInfo::closeShdCtx() {
 /**
  */
 uint32_t Logger::SectionInfo::fetchNextSamples() {
-	/* TODO: use a "strictly after" method in libshdata */
-	struct timespec ts = {0, 0};
-	time_timespec_add_us(&mLastTimestamp, 1, &ts);
-
 	/* Retrieve full blobs */
 	uint32_t before = 0, after = 0;
 	uint32_t fetchCount = std::min((uint32_t)FETCH_COUNT, mShdCtx.getMaxNbSamples());
-	if (!mShdCtx.getBlobs(&ts, TLM_FIRST_AFTER, 0, fetchCount - 1,
+
+	if (mLastTimestamp.tv_sec == 0 && mLastTimestamp.tv_nsec == 0) {
+		/* If no sample has been retrieved yet, the "oldest" method
+		 * is used */
+		if (!mShdCtx.getBlobs(NULL, TLM_OLDEST, 0, fetchCount - 1,
 			mTsArray, &before, &after, mData, mDataSize)) {
-		/* Detect automatic close due to format changes */
-		if (!mShdCtx.isOpened())
-			closeShdCtx();
-		return 0;
+			/* Detect automatic close due to format changes */
+			if (!mShdCtx.isOpened())
+				closeShdCtx();
+			return 0;
+		}
+	} else {
+		/* Else we setup a "strictly first after" search for the
+		 * sample that came right next after the last one we
+		 * retrieved */
+		/* TODO: use a "strictly after" method in libshdata */
+		struct timespec ts = {0, 0};
+		time_timespec_add_us(&mLastTimestamp, 1, &ts);
+
+		if (!mShdCtx.getBlobs(&ts, TLM_FIRST_AFTER, 0, fetchCount - 1,
+				mTsArray, &before, &after,
+				mData, mDataSize)) {
+			/* Detect automatic close due to format changes */
+			if (!mShdCtx.isOpened())
+				closeShdCtx();
+			return 0;
+		}
 	}
 	assert(before == 0);
 	assert(after < fetchCount);

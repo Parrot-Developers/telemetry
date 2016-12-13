@@ -70,7 +70,8 @@ enum tlm_method {
 	TLM_LATEST,       /**< Get last sample (timestamp of query unsed) */
 	TLM_CLOSEST,      /**< Get closest sample */
 	TLM_FIRST_AFTER,  /**< Get closest sample AFTER given timestamp) */
-	TLM_FIRST_BEFORE  /**< Get closest sample BEFORE given timestamp) */
+	TLM_FIRST_BEFORE, /**< Get closest sample BEFORE given timestamp) */
+	TLM_OLDEST        /**< Get oldest sample (query timestamp unused) */
 };
 
 /* Forward declarations */
